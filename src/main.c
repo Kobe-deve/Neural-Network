@@ -1,13 +1,22 @@
+/*
+
+	Created by Kobe Runnels
+	5/8/2023 - 
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <time.h>
 
+// structure for individual nodes in the network 
 struct node
 {
-	int activation;
+	double activation; // activation level of the node 
 	
-	int bias;
-	
+	double bias; // holds the specific bias for the node 
+	double * weights; // holds weights for previous layer 
 };
 
 // Neural Network data structures 
@@ -50,7 +59,8 @@ void readTestInputFiles(char * fileName)
 	strcat(outputFile,"_output.txt");
 	
 	readOutputFile = fopen(outputFile,"r");
-
+	
+	// start reading the files 
 	if(readFile == NULL || readOutputFile == NULL)
 	{
 		printf("\nERROR: UNABLE TO OPEN FILES");
@@ -112,16 +122,46 @@ void readTestInputFiles(char * fileName)
 		}
 	}
 	
+	// close files and free file reader used 
 	fclose(readFile);
+	fclose(readOutputFile);
 	free(fileReader);
 }
 
-void main()
+// initialize a specific layer 
+void initializeLayer(int prevLayerSize, struct node * layer, int layerSize)
 {
+	int i, j;
+	
+	// initialize nodes in layer with random value between 0 and 1 and set up weights 
+	for(i=0;i<layerSize;i++)
+	{
+		layer[i].activation = 0;
+		layer[i].bias = ((double)rand())/((double)RAND_MAX);
+		
+		// set up weights and initialize them 
+		layer[i].weights = malloc(prevLayerSize * sizeof(double));
+		
+		for(j=0;j<prevLayerSize;j++)
+			layer[i].weights[j] = ((double)rand())/((double)RAND_MAX);
+		
+		printf("\n%f",layer[i].bias);
+	}
+}
+
+void main(int argc, char *argv[])
+{	
+	srand((unsigned)time(NULL));
+	
 	int i,j;
-	readTestInputFiles("training_data/test_data");
 	
+	// command line input 
+	if( argc == 2 ) 
+		readTestInputFiles(argv[1]);
+	else
+		readTestInputFiles("training_data/test_data");
 	
+	/*
 	for(i=0;i<numInDataFile;i++)
 	{
 		for(j=0;j<inputSize;j++)
@@ -141,9 +181,14 @@ void main()
 		}
 		printf("\n");
 	}
-	
+	*/
 
 	// after reading file, set up the input and output layers of the network
 	inputs = malloc(inputSize * sizeof(struct node));
 	output = malloc(labelSize * sizeof(struct node));
+	
+	initializeLayer(inputSize,output,labelSize);
+	
+	free(inputs);
+	free(output);
 }
