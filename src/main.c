@@ -168,6 +168,41 @@ void initializeLayer(int prevLayerSize, struct node * layer, int layerSize)
 	}
 }
 
+// prints out activations of each node in each layer
+void printNodes()
+{
+	int i,j;
+	
+	printf("\n-------------------------------------");
+	
+	// input 
+	printf("\nINPUT:\n");
+	
+	for(i=0;i<inputSize;i++)
+	{
+		printf("%.2f ",inputs[i].activation);
+	}
+	
+	printf("\n\nHIDDEN");
+	
+	// hidden 
+	for(i=0;i<numHidden;i++)
+	{
+		printf("\nLAYER %d - ",i);
+		for(j=0;j<numNodesHidden;j++)
+		{
+			printf("%.2f ",hiddenLayer[i][j].activation);
+		}
+	}
+	
+	// output
+	printf("\n\nOUTPUT\n");
+	for(i=0;i<labelSize;i++)
+	{
+		printf("%.2f ",output[i].activation);
+	}
+}
+
 void main(int argc, char *argv[])
 {	
 	int i,j;
@@ -183,6 +218,13 @@ void main(int argc, char *argv[])
 
 	// after reading file, set up the input and output layers of the network
 	inputs = malloc(inputSize * sizeof(struct node));
+	
+	// set default activation of input nodes to 0
+	for(i=0;i<inputSize;i++)
+	{
+		inputs[i].activation = 0;
+	}
+	
 	output = malloc(labelSize * sizeof(struct node));
 	
 	// initialize hidden layer 
@@ -207,6 +249,8 @@ void main(int argc, char *argv[])
 	// initialize weights/biases in output layer 
 	initializeLayer(numNodesHidden,output,labelSize);
 	printf("OUTPUT INITIALIZED");
+	
+	printNodes();
 	
 	// free data used at the end 
 	free(inputs);
