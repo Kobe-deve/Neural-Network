@@ -230,7 +230,7 @@ void printNodes()
 
 void main(int argc, char *argv[])
 {	
-	int i,j;
+	int i,j,z;
 	
 	// set the seed for randomization (when initializing)
 	srand((unsigned)time(NULL));
@@ -283,6 +283,20 @@ void main(int argc, char *argv[])
 		{
 			inputs[j].activation = trainingData[i][j];
 		}
+		
+		// go through hidden layers and activate nodes
+		for(z=0;z<numHidden;z++)
+		{
+			for(j=0;j<numNodesHidden;j++)
+			{
+				if(z==0)
+					activationFunction(inputs, &hiddenLayer[z][j]);
+				else
+					activationFunction(hiddenLayer[z-1], &hiddenLayer[z][j]);
+			}
+		}
+		
+		// activate output layer 
 		
 		printNodes();
 	}
