@@ -171,8 +171,20 @@ void initializeLayer(int prevLayerSize, struct node * layer, int layerSize)
 }
 
 // cost function used to show how off the network is 
-double costFunction()
+double costFunction(int trainingDataSet)
 {
+	int i;
+	
+	double sum = 0;
+	
+	for(i=0;i<labelSize;i++)
+	{
+		int active = 0;
+		
+		sum += pow(output[i].activation - trainingDataLabels[trainingDataSet][i],2);
+	}
+	
+	return sum;
 }
 
 // function for activating a node 
@@ -198,7 +210,7 @@ void printNodes()
 {
 	int i,j;
 	
-	printf("\n-------------------------------------");
+	printf("\n\n-------------------------------------");
 	
 	// input 
 	printf("\nINPUT:\n");
@@ -303,6 +315,8 @@ void main(int argc, char *argv[])
 		}
 		
 		printNodes();
+		
+		printf("\nCOST:%.2f",costFunction(i));
 	}
 	
 	// free data used at the end 
