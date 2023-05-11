@@ -43,6 +43,18 @@ int inputSize; // the size of one set of training data
 int numInDataFile; // number of sets in training data file
 int labelSize; // the size of the labels 
 
+// sigmoid function used 
+double sigmoid(double x)
+{
+	return (1/(1+exp(-x)));
+}
+
+// derivative of sigmoid used for backprop
+double derivativeSigmoid(double x)
+{
+	return (exp(-x)/pow((1+exp(-x)),2));
+}
+
 // for error handling 
 void throwError(char * errorMessage)
 {
@@ -158,9 +170,10 @@ void initializeLayer(int prevLayerSize, struct node * layer, int layerSize)
 
 void main(int argc, char *argv[])
 {	
-	srand((unsigned)time(NULL));
-	
 	int i,j;
+	
+	// set the seed for randomization (when initializing)
+	srand((unsigned)time(NULL));
 	
 	// command line input 
 	if( argc == 2 ) 
@@ -177,6 +190,7 @@ void main(int argc, char *argv[])
 	hiddenLayer = malloc(numHidden * sizeof(struct node *));
 	numNodesHidden = 3;
 	
+	// loop through each layer 
 	for(i=0;i<numHidden;i++)
 	{
 		hiddenLayer[i] = malloc(numNodesHidden * sizeof(struct node));
@@ -193,9 +207,6 @@ void main(int argc, char *argv[])
 	// initialize weights/biases in output layer 
 	initializeLayer(numNodesHidden,output,labelSize);
 	printf("OUTPUT INITIALIZED");
-	
-	
-	
 	
 	// free data used at the end 
 	free(inputs);
