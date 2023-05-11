@@ -17,6 +17,7 @@ struct node
 	
 	double bias; // holds the specific bias for the node 
 	double * weights; // holds weights for previous layer 
+	int numWeights; // number of weights
 };
 
 // Neural Network data structures 
@@ -162,10 +163,34 @@ void initializeLayer(int prevLayerSize, struct node * layer, int layerSize)
 		
 		// set up weights and initialize them 
 		layer[i].weights = malloc(prevLayerSize * sizeof(double));
+		layer[i].numWeights = prevLayerSize;
 		
 		for(j=0;j<prevLayerSize;j++)
 			layer[i].weights[j] = ((double)rand())/((double)RAND_MAX);
 	}
+}
+
+// cost function used to show how off the network is 
+double costFunction()
+{
+}
+
+// function for activating a node 
+void activationFunction(struct node * previousLayer, struct node * inputNode)
+{
+	int i,j;
+	
+	double z = 0;
+	
+	// sum of weights times activations 
+	for(i=0;i<inputNode->numWeights;i++)
+	{
+		z += inputNode->weights[i]*previousLayer[i].activation;
+	}
+	
+	z += inputNode->bias;
+	
+	inputNode->activation = sigmoid(z);
 }
 
 // prints out activations of each node in each layer
@@ -250,7 +275,17 @@ void main(int argc, char *argv[])
 	initializeLayer(numNodesHidden,output,labelSize);
 	printf("OUTPUT INITIALIZED");
 	
-	printNodes();
+	// go through all training data 
+	for(i=0;i<numInDataFile;i++)
+	{	
+		// input training data into input nodes
+		for(j=0;j<inputSize;j++)
+		{
+			inputs[j].activation = trainingData[i][j];
+		}
+		
+		printNodes();
+	}
 	
 	// free data used at the end 
 	free(inputs);
