@@ -177,6 +177,7 @@ double costFunction(int trainingDataSet)
 	
 	double sum = 0;
 	
+	// go through outputs and subtract their activations with the expected label output 
 	for(i=0;i<labelSize;i++)
 	{
 		int active = 0;
@@ -314,9 +315,14 @@ void main(int argc, char *argv[])
 			activationFunction(hiddenLayer[numHidden-1], &output[z]);	
 		}
 		
+		// display activation of all nodes and the cost 
 		printNodes();
 		
-		printf("\nCOST:%.2f",costFunction(i));
+		double cost = costFunction(i);
+		
+		printf("\nCOST:%.2f",cost);
+		
+		// back propagation
 	}
 	
 	// free data used at the end 
