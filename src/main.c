@@ -292,11 +292,15 @@ void main(int argc, char *argv[])
 				if(z==0)
 					activationFunction(inputs, &hiddenLayer[z][j]);
 				else
-					activationFunction(hiddenLayer[z-1], &hiddenLayer[z][j]);
+					activationFunction(hiddenLayer[z-1], &hiddenLayer[z][j]);	
 			}
 		}
 		
 		// activate output layer 
+		for(z=0;z<labelSize;z++)
+		{
+			activationFunction(hiddenLayer[numHidden-1], &output[z]);	
+		}
 		
 		printNodes();
 	}
