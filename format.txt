@@ -1,0 +1,34 @@
+
+Hidden/output layer:
+	every node is connected to every node in the previous layer 
+	initialize with random values
+	node activation = sigmoid((matrix of weight of nodes)*(matrix of activation of nodes) + matrix node biases)
+	
+	cost function:
+		input: weights
+		(output node matrix - expected output matrix)^2
+	
+	making cost lower:
+		compute negative gradient of cost function
+			- outputs which weights need to change and which are important
+		downward hill climb for the cost function (gradient descend)
+	
+	back propagation:
+		-focus on nudging the specific output node needed
+		-focus on the most active neurons through changing weights and hidden layer activations backwards
+		-negative gradient (loosely) is the average of back propagation pushes to weights from a set of data 
+		
+	stochastic gradient descent
+		-subdivide training data into mini-batches and change after each batch to change the weights
+		
+	
+Learn/Training:
+	Parameters:
+		Input
+		Output
+	
+	Update the internal state to fit with the data given
+		
+Predict:
+	Parameters:
+		Input 
