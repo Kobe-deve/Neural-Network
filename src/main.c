@@ -119,9 +119,9 @@ void readTestInputFiles(char * fileName)
 void main()
 {
 	int i,j;
-	readTestInputFiles("test_data");
+	readTestInputFiles("training_data/test_data");
 	
-	/*
+	
 	for(i=0;i<numInDataFile;i++)
 	{
 		for(j=0;j<inputSize;j++)
@@ -141,7 +141,7 @@ void main()
 		}
 		printf("\n");
 	}
-	*/
+	
 
 	// after reading file, set up the input and output layers of the network
 	inputs = malloc(inputSize * sizeof(struct node));
