@@ -28,6 +28,12 @@ struct node * output;
 // array for hidden layers
 struct node ** hiddenLayer;
 
+// the number of hidden layers in the network 
+int numHidden; 
+
+// how many nodes are in each hidden layer (TODO: change to array probably)
+int numNodesHidden;
+
 // Training data 
 
 int ** trainingData; // specific array of training data
@@ -36,6 +42,13 @@ int ** trainingDataLabels; // labels for training data
 int inputSize; // the size of one set of training data 
 int numInDataFile; // number of sets in training data file
 int labelSize; // the size of the labels 
+
+// for error handling 
+void throwError(char * errorMessage)
+{
+	printf("ERROR: %s",errorMessage);
+	exit(1);
+}
 
 // reads the input file 
 void readTestInputFiles(char * fileName)
@@ -62,11 +75,7 @@ void readTestInputFiles(char * fileName)
 	
 	// start reading the files 
 	if(readFile == NULL || readOutputFile == NULL)
-	{
-		printf("\nERROR: UNABLE TO OPEN FILES");
-		
-		return;
-	}
+		throwError("UNABLE TO OPEN FILES");
 	else
 	{
 		// get input file set size and number of sets for input to network size 
@@ -144,8 +153,6 @@ void initializeLayer(int prevLayerSize, struct node * layer, int layerSize)
 		
 		for(j=0;j<prevLayerSize;j++)
 			layer[i].weights[j] = ((double)rand())/((double)RAND_MAX);
-		
-		printf("\n%f",layer[i].bias);
 	}
 }
 
@@ -160,35 +167,42 @@ void main(int argc, char *argv[])
 		readTestInputFiles(argv[1]);
 	else
 		readTestInputFiles("training_data/test_data");
-	
-	/*
-	for(i=0;i<numInDataFile;i++)
-	{
-		for(j=0;j<inputSize;j++)
-		{
-			printf("\n%d",trainingData[i][j]);
-		}
-		printf("\n");
-	}
-	
-	printf("\nOUTPUT:");
-	
-	for(i=0;i<numInDataFile;i++)
-	{
-		for(j=0;j<labelSize;j++)
-		{
-			printf("\n%d",trainingDataLabels[i][j]);
-		}
-		printf("\n");
-	}
-	*/
 
 	// after reading file, set up the input and output layers of the network
 	inputs = malloc(inputSize * sizeof(struct node));
 	output = malloc(labelSize * sizeof(struct node));
 	
-	initializeLayer(inputSize,output,labelSize);
+	// initialize hidden layer 
+	numHidden = 2;
+	hiddenLayer = malloc(numHidden * sizeof(struct node *));
+	numNodesHidden = 3;
 	
+	for(i=0;i<numHidden;i++)
+	{
+		hiddenLayer[i] = malloc(numNodesHidden * sizeof(struct node));
+		
+		// initialize weights/biases in hidden layer 
+		if(i==0)
+			initializeLayer(inputSize,hiddenLayer[0],numNodesHidden);
+		else
+			initializeLayer(numNodesHidden,hiddenLayer[i],numNodesHidden);
+	
+		printf("LAYER %d INITIALIZED\n",i+1);
+	}
+	
+	// initialize weights/biases in output layer 
+	initializeLayer(numNodesHidden,output,labelSize);
+	printf("OUTPUT INITIALIZED");
+	
+	
+	
+	
+	// free data used at the end 
 	free(inputs);
 	free(output);
+	
+	for(i=0;i<numHidden;i++)
+		free(hiddenLayer[i]);
+	
+	free(hiddenLayer);
 }
