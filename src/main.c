@@ -193,7 +193,7 @@ void activationFunction(struct node * previousLayer, struct node * inputNode)
 {
 	int i,j;
 	
-	double z = 0;
+	double z = 0; // weighted input 
 	
 	// sum of weights times activations 
 	for(i=0;i<inputNode->numWeights;i++)
@@ -201,8 +201,10 @@ void activationFunction(struct node * previousLayer, struct node * inputNode)
 		z += inputNode->weights[i]*previousLayer[i].activation;
 	}
 	
+	// add the bias 
 	z += inputNode->bias;
 	
+	// set activation 
 	inputNode->activation = sigmoid(z);
 }
 
@@ -239,6 +241,21 @@ void printNodes()
 	{
 		printf("%.2f ",output[i].activation);
 	}
+}
+
+
+void gradientDescent()
+{
+	
+}
+
+//
+// derivative of cost with respect to weight = activation of node in last layer * derivative sigmoid(z) * 2 * (activation - expected)
+// derivative of cost with respect to bias = 1 * derivative sigmoid(z) * 2 * (activation - expected)
+// derivative of cost with respect to activation of last node = (sum of nodes through layer) weight * derivative sigmoid(z) * 2 * (activation - expected)
+void backPropagation(struct node * previousLayer, struct node * inputNode)
+{
+	
 }
 
 void main(int argc, char *argv[])
