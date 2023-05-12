@@ -27,6 +27,6 @@ Developed By Kobe Runnels
 		-Change weights/biases 
 				
 # Resources/Inspiration
-http://neuralnetworksanddeeplearning.com/
-https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi
-https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547
+- http://neuralnetworksanddeeplearning.com/
+- https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi
+- https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547
