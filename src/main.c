@@ -244,23 +244,83 @@ void printNodes()
 }
 
 
-void gradientDescent()
+/*
+   derivative of cost with respect to weight
+   = activation of node in last layer * derivative sigmoid(z) * 2 * (activation - expected)
+   
+   derivative of cost with respect to bias
+   = 1 * derivative sigmoid(z) * 2 * (activation - expected)
+   
+   derivative of cost with respect to activation of last node
+   = (sum of nodes through layer) (weight * derivative sigmoid(z) * 2 * (activation - expected))
+*/
+// takes in a specific training set to determine back propagation with updating weights
+void backPropagation(int trainingSet)
 {
+	// iteration loop variables 
+	int i,j,z;
 	
-}
-
-//
-// derivative of cost with respect to weight = activation of node in last layer * derivative sigmoid(z) * 2 * (activation - expected)
-// derivative of cost with respect to bias = 1 * derivative sigmoid(z) * 2 * (activation - expected)
-// derivative of cost with respect to activation of last node = (sum of nodes through layer) weight * derivative sigmoid(z) * 2 * (activation - expected)
-void backPropagation(struct node * previousLayer, struct node * inputNode)
-{
+	// arrays used for setting up the weights with error calculation 
+	double * deltaOutput = malloc(labelSize * sizeof(double));
+	double ** deltaHidden = malloc(numHidden * sizeof(double *));
 	
+	// allocate delta hidden 
+	for(i=0;i<numHidden;i++)
+		deltaHidden[i] = malloc(numNodesHidden * sizeof(double));
+	
+	// output layer calculations
+	for(i=0;i<labelSize;i++)
+	{
+		// calculate the error of the activation of the output - the expected activation 
+		double error = output[i].activation - trainingDataLabels[trainingSet][i];
+		
+		// set up delta output calculation for setting weights
+		deltaOutput[i] = error*derivativeSigmoid(output[i].activation);
+	}
+	
+	// hidden layers calculations
+	for(i=numHidden-1;i>=0;i--)
+	{
+		double errorHidden = 0.0; // error in the current hidden layer
+		
+		for(z=0;z<numNodesHidden;z++)
+		{
+			// if this is the hidden layer before the output zone, get the output layer info 
+			if(i == numHidden-1)
+			{
+				for(j=0;j<labelSize;j++)
+				{
+					errorHidden += deltaOutput[j] * hiddenLayer[i][z].weights[j];
+				}
+			
+				deltaHidden[i][z] = errorHidden*derivativeSigmoid(hiddenLayer[i][z].activation);
+			}
+			else // if on the other hidden layers, get the previous layer 
+			{
+				//for(j=0;j<numNodesHidden;j++)
+				//{
+				//	errorHidden += deltaHidden[i-1][j] * hiddenLayer[i][z].weights[j];
+				//}
+				//deltaHidden[i][z] = errorHidden*derivativeSigmoid(hiddenLayer[i][z].activation);
+			}
+		}
+	}
+	
+	// set output layer weights/biases
+	
+	// set hidden layer weights/biases
+	
+	// free the data used 
+	free(deltaOutput);
+	
+	for(i=0;i<numHidden;i++)
+		free(deltaHidden[i]);
+	free(deltaHidden);
 }
 
 void main(int argc, char *argv[])
 {	
-	int i,j,z;
+	int i,j,z,x;
 	
 	// set the seed for randomization (when initializing)
 	srand((unsigned)time(NULL));
@@ -287,16 +347,17 @@ void main(int argc, char *argv[])
 	hiddenLayer = malloc(numHidden * sizeof(struct node *));
 	numNodesHidden = 3;
 	
-	// loop through each layer 
-	for(i=0;i<numHidden;i++)
+	// initialize hidden layer before output 
+	hiddenLayer[0] = malloc(numNodesHidden * sizeof(struct node));
+	initializeLayer(inputSize,hiddenLayer[0],numNodesHidden);
+		
+	// loop through each layer for initialization 
+	for(i=1;i<numHidden;i++)
 	{
 		hiddenLayer[i] = malloc(numNodesHidden * sizeof(struct node));
 		
 		// initialize weights/biases in hidden layer 
-		if(i==0)
-			initializeLayer(inputSize,hiddenLayer[0],numNodesHidden);
-		else
-			initializeLayer(numNodesHidden,hiddenLayer[i],numNodesHidden);
+		initializeLayer(numNodesHidden,hiddenLayer[i],numNodesHidden);
 	
 		printf("LAYER %d INITIALIZED\n",i+1);
 	}
@@ -304,44 +365,49 @@ void main(int argc, char *argv[])
 	// initialize weights/biases in output layer 
 	initializeLayer(numNodesHidden,output,labelSize);
 	printf("OUTPUT INITIALIZED");
-	
-	// go through all training data 
-	for(i=0;i<numInDataFile;i++)
-	{	
-		// input training data into input nodes
-		for(j=0;j<inputSize;j++)
-		{
-			inputs[j].activation = trainingData[i][j];
-		}
-		
-		// go through hidden layers and activate nodes
-		for(z=0;z<numHidden;z++)
-		{
-			for(j=0;j<numNodesHidden;j++)
+
+	// loop through training 1000 times
+	for(x=0;x<1000;x++)
+	{
+		// go through all training data 
+		for(i=0;i<numInDataFile;i++)
+		{	
+			// input training data into input nodes
+			for(j=0;j<inputSize;j++)
 			{
-				if(z==0)
-					activationFunction(inputs, &hiddenLayer[z][j]);
-				else
-					activationFunction(hiddenLayer[z-1], &hiddenLayer[z][j]);	
+				inputs[j].activation = trainingData[i][j];
 			}
+			
+			// go through hidden layers and activate nodes
+			for(z=0;z<numHidden;z++)
+			{
+				for(j=0;j<numNodesHidden;j++)
+				{
+					if(z==0)
+						activationFunction(inputs, &hiddenLayer[z][j]);
+					else
+						activationFunction(hiddenLayer[z-1], &hiddenLayer[z][j]);	
+				}
+			}
+			
+			// activate output layer 
+			for(z=0;z<labelSize;z++)
+			{
+				activationFunction(hiddenLayer[numHidden-1], &output[z]);	
+			}
+			
+			// display activation of all nodes and the cost 
+			printNodes();
+			
+			double cost = costFunction(i);
+			
+			printf("\nCOST:%.2f",cost);
+			
+			// back propagation
+			backPropagation(i);
 		}
-		
-		// activate output layer 
-		for(z=0;z<labelSize;z++)
-		{
-			activationFunction(hiddenLayer[numHidden-1], &output[z]);	
-		}
-		
-		// display activation of all nodes and the cost 
-		printNodes();
-		
-		double cost = costFunction(i);
-		
-		printf("\nCOST:%.2f",cost);
-		
-		// back propagation
 	}
-	
+		
 	// free data used at the end 
 	free(inputs);
 	free(output);
