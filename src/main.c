@@ -32,7 +32,7 @@ double * costProgression; // holds an array of the cost progression for every ru
 struct node * inputs;
 struct node * output;
 
-int numTestIterations = 10000; // number of times the training data is run through 
+int numTestIterations = 30; // number of times the training data is run through 
 
 // array for hidden layers
 struct node ** hiddenLayer;
@@ -359,6 +359,38 @@ void backPropagation(int trainingSet)
 	free(deltaHidden);
 }
 
+// takes in an activation array of size (inputSize) and prints out node output
+void neuralNetwork(double * activationArray)
+{
+	int i,j,z;
+	
+	// input training data into input nodes
+	for(j=0;j<inputSize;j++)
+	{
+		inputs[j].activation = activationArray[j];
+	}
+			
+	// go through hidden layers and activate nodes
+	for(z=0;z<numHidden;z++)
+	{
+		for(j=0;j<numNodesHidden;j++)
+		{
+			if(z==0)
+				activationFunction(inputs, &hiddenLayer[z][j]);
+			else
+				activationFunction(hiddenLayer[z-1], &hiddenLayer[z][j]);	
+		}
+	}
+		
+	printf("\nOUTPUT:");
+	// activate output layer 
+	for(z=0;z<labelSize;z++)
+	{
+		activationFunction(hiddenLayer[numHidden-1], &output[z]);	
+		printf("%.2f ",output[z].activation);
+	}
+}
+
 void main(int argc, char *argv[])
 {	
 	int i,j,z,x;
@@ -386,10 +418,10 @@ void main(int argc, char *argv[])
 	
 	output = malloc(labelSize * sizeof(struct node));
 	
-	// initialize hidden layer 
+	// initialize hidden layer array
 	numHidden = 1;
 	hiddenLayer = malloc(numHidden * sizeof(struct node *));
-	numNodesHidden = 3;
+	numNodesHidden = 2;
 	
 	// initialize hidden layer before input 
 	hiddenLayer[0] = malloc(numNodesHidden * sizeof(struct node));
@@ -443,9 +475,6 @@ void main(int argc, char *argv[])
 				activationFunction(hiddenLayer[numHidden-1], &output[z]);	
 			}
 			
-			// display activation of all nodes and the cost 
-			//printNodes();
-			
 			// back propagation
 			backPropagation(i);
 			
@@ -461,19 +490,28 @@ void main(int argc, char *argv[])
 				}
 			}
 			
-			/*if(valid == 1)
-				printf("\nTRUE");
-			else
-				printf("\nFALSE");*/
-			
 			cost += costFunction(i);
 		}
 		costProgression[x] = cost;
-		//printf("\n%.2f",cost);
 	}
 	
 	// display cost progression difference
 	printf("\n\nCOST PROGRESSION (Last test run - First test) - %.3f",costProgression[numTestIterations-1]-costProgression[0]);
+	
+	
+	// currently the test input files are for the sine function so this will test it with one input 
+	double * activationArray = malloc(inputSize*sizeof(double));
+	activationArray[0] = 0;
+	activationArray[1] = 1;
+	activationArray[2] = 0;
+	activationArray[3] = 0;
+	activationArray[4] = 0;
+	activationArray[5] = 0;
+	activationArray[6] = 0;
+	activationArray[7] = 0;
+	activationArray[8] = 0;
+	activationArray[9] = 0;
+	neuralNetwork(activationArray);
 	
 	// free data used at the end 
 	free(inputs);
