@@ -21,7 +21,7 @@ struct node
 };
 
 // the min/max activations a node can have 
-#define MIN_NODE_ACTIVATION 0.00000000000000000001
+#define MIN_NODE_ACTIVATION 0
 #define MAX_NODE_ACTIVATION 1
 
 // Neural Network data structures 
@@ -32,7 +32,7 @@ double * costProgression; // holds an array of the cost progression for every ru
 struct node * inputs;
 struct node * output;
 
-int numTestIterations = 30; // number of times the training data is run through 
+int numTestIterations; // number of times the training data is run through 
 
 // array for hidden layers
 struct node ** hiddenLayer;
@@ -52,7 +52,7 @@ int inputSize; // the size of one set of training data
 int numInDataFile; // number of sets in training data file
 int labelSize; // the size of the labels 
 
-double learningRate = 0.1; // the learning rate of the network 
+double learningRate; // the learning rate of the network 
 
 // sigmoid function used 
 double sigmoid(double x)
@@ -254,6 +254,44 @@ void printNodes()
 	}
 }
 
+// prints weights in the network
+void printWeightsAndBiases()
+{
+	int i,j,z;
+	
+	printf("\n\n-------------------------------------");
+	
+	printf("\n\nHIDDEN");
+	
+	// hidden 
+	for(i=0;i<numHidden;i++)
+	{
+		printf("\nLAYER %d WEIGHTS/BIASES:",i+1);
+		for(j=0;j<numNodesHidden;j++)
+		{
+			printf("\nBIAS - %.2f\n",hiddenLayer[i][j].bias);
+			for(z=0;z<hiddenLayer[i][j].numWeights;z++)
+				printf("\n%f ",hiddenLayer[i][j].weights[z]);
+			printf("\n");
+		}
+	}
+	
+	printf("\n");
+	
+	// output
+	printf("\nOUTPUT WEIGHTS/BIASES\n");
+	for(i=0;i<labelSize;i++)
+	{
+		for(j=0;j<numNodesHidden;j++)
+		{
+			printf("\nBIAS - %.2f",output[i].bias);
+			for(z=0;z<output[i].numWeights;z++)
+				printf("\n%f ",output[i].weights[z]);
+			printf("\n");
+		}
+	}
+}
+
 
 /*
    derivative of cost with respect to weight
@@ -398,6 +436,10 @@ void main(int argc, char *argv[])
 	// set the seed for randomization (when initializing)
 	srand((unsigned)time(NULL));
 	
+	// set learning rate and number of iterations through training data 
+	numTestIterations = 70;
+	learningRate = 0.00000001;
+	
 	// initialize cost progression array 
 	costProgression = malloc(numTestIterations * sizeof(double));
 	
@@ -512,6 +554,9 @@ void main(int argc, char *argv[])
 	activationArray[8] = 0;
 	activationArray[9] = 0;
 	neuralNetwork(activationArray);
+	
+	
+	printWeightsAndBiases();
 	
 	// free data used at the end 
 	free(inputs);
