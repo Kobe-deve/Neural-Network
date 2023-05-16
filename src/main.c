@@ -20,11 +20,19 @@ struct node
 	int numWeights; // number of weights
 };
 
+// the min/max activations a node can have 
+#define MIN_NODE_ACTIVATION 0.00000000000000000001
+#define MAX_NODE_ACTIVATION 1
+
 // Neural Network data structures 
+
+double * costProgression; // holds an array of the cost progression for every run  
 
 // array for the input/output layers
 struct node * inputs;
 struct node * output;
+
+int numTestIterations = 10000; // number of times the training data is run through 
 
 // array for hidden layers
 struct node ** hiddenLayer;
@@ -172,7 +180,7 @@ void initializeLayer(int prevLayerSize, struct node * layer, int layerSize)
 	}
 }
 
-// cost function used to show how much error the network has with mean squared error  
+// cost function used to show how much error the network has with mean squared error for one training data set  
 double costFunction(int trainingDataSet)
 {
 	int i;
@@ -207,7 +215,7 @@ void activationFunction(struct node * previousLayer, struct node * inputNode)
 	z += inputNode->bias;
 	
 	// set activation 
-	inputNode->activation = fmin(1,fmax(sigmoid(z),0.000000000000000000001)); // check used so values aren't NaN
+	inputNode->activation = fmin(MAX_NODE_ACTIVATION,fmax(sigmoid(z),MIN_NODE_ACTIVATION)); // check used so values aren't NaN
 	
 	if(inputNode->activation < 0)
 		inputNode->activation = 0;
@@ -360,6 +368,9 @@ void main(int argc, char *argv[])
 	// set the seed for randomization (when initializing)
 	srand((unsigned)time(NULL));
 	
+	// initialize cost progression array 
+	costProgression = malloc(numTestIterations * sizeof(double));
+	
 	// command line input 
 	if( argc == 2 ) 
 		readTestInputFiles(argv[1]);
@@ -378,7 +389,7 @@ void main(int argc, char *argv[])
 	output = malloc(labelSize * sizeof(struct node));
 	
 	// initialize hidden layer 
-	numHidden = 2;
+	numHidden = 10;
 	hiddenLayer = malloc(numHidden * sizeof(struct node *));
 	numNodesHidden = 3;
 	
@@ -402,9 +413,11 @@ void main(int argc, char *argv[])
 	initializeLayer(numNodesHidden,output,labelSize);
 	printf("OUTPUT INITIALIZED");
 
-	// loop through training 1000 times
-	for(x=0;x<10000;x++)
+	// loop through training data (numTestIterations) number of times
+	for(x=0;x<numTestIterations;x++)
 	{
+		double cost = 0.0; // used for getting cost for one run of all training data
+		
 		// go through all training data 
 		for(i=0;i<numInDataFile;i++)
 		{	
@@ -433,7 +446,7 @@ void main(int argc, char *argv[])
 			}
 			
 			// display activation of all nodes and the cost 
-			//printNodes();
+			printNodes();
 			
 			// back propagation
 			backPropagation(i);
@@ -450,21 +463,27 @@ void main(int argc, char *argv[])
 				}
 			}
 			
-			if(x==0 || x== 9999)
-			{
-				if(valid == 1)
-					printf("\nTRUE");
-				else
-					printf("\nFALSE");
-		
-			}
+			if(valid == 1)
+				printf("\nTRUE");
+			else
+				printf("\nFALSE");
+			
+			cost += costFunction(i);
 		}
+		costProgression[x] = cost;
 	}
-		
+	
+	// display cost progression difference
+	printf("\n\nCOST PROGRESSION (Last test run - First test) - %.3f",costProgression[numTestIterations-1]-costProgression[0]);
+	
 	// free data used at the end 
 	free(inputs);
 	free(output);
 	
+	// free cost progression array 
+	free(costProgression);
+	
+	// free hidden layer array 
 	for(i=0;i<numHidden;i++)
 		free(hiddenLayer[i]);
 	
