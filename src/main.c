@@ -44,7 +44,7 @@ int inputSize; // the size of one set of training data
 int numInDataFile; // number of sets in training data file
 int labelSize; // the size of the labels 
 
-double learningRate; // the learning rate of the network 
+double learningRate = 0.1; // the learning rate of the network 
 
 // sigmoid function used 
 double sigmoid(double x)
@@ -207,7 +207,10 @@ void activationFunction(struct node * previousLayer, struct node * inputNode)
 	z += inputNode->bias;
 	
 	// set activation 
-	inputNode->activation = sigmoid(z);
+	inputNode->activation = fmin(1,fmax(sigmoid(z),0.000000000000000000001)); // check used so values aren't NaN
+	
+	if(inputNode->activation < 0)
+		inputNode->activation = 0;
 }
 
 // prints out activations of each node in each layer
@@ -233,7 +236,7 @@ void printNodes()
 		printf("\nLAYER %d - (NUM WEIGHTS BEFORE: %d): ",i,hiddenLayer[i][0].numWeights);
 		for(j=0;j<numNodesHidden;j++)
 		{
-			printf("%.2f ",hiddenLayer[i][j].activation);
+			printf("%f ",hiddenLayer[i][j].activation);
 		}
 	}
 	
@@ -241,7 +244,7 @@ void printNodes()
 	printf("\n\nOUTPUT (NUM WEIGHTS BEFORE: %d):\n",output[0].numWeights);
 	for(i=0;i<labelSize;i++)
 	{
-		printf("%.2f ",output[i].activation);
+		printf("%f ",output[i].activation);
 	}
 }
 
@@ -324,6 +327,10 @@ void backPropagation(int trainingSet)
 		for(j=0;j<numNodesHidden;j++)
 		{
 			hiddenLayer[i][j].bias += deltaHidden[i][j]*learningRate; // set the bias for the specific node 
+			for(z=0;z<numNodesHidden;z++) // set weights 
+			{
+				hiddenLayer[i][j].weights[z] += hiddenLayer[i-1][z].activation*deltaHidden[i-1][j]*learningRate;
+			}
 		}
 	}
 	
@@ -344,8 +351,6 @@ void backPropagation(int trainingSet)
 	for(i=0;i<numHidden;i++)
 		free(deltaHidden[i]);
 	free(deltaHidden);
-	
-	printf("\n");
 }
 
 void main(int argc, char *argv[])
@@ -398,7 +403,7 @@ void main(int argc, char *argv[])
 	printf("OUTPUT INITIALIZED");
 
 	// loop through training 1000 times
-	for(x=0;x<1;x++)
+	for(x=0;x<10000;x++)
 	{
 		// go through all training data 
 		for(i=0;i<numInDataFile;i++)
@@ -428,10 +433,31 @@ void main(int argc, char *argv[])
 			}
 			
 			// display activation of all nodes and the cost 
-			printNodes();
+			//printNodes();
 			
 			// back propagation
 			backPropagation(i);
+			
+			int valid = 1;
+			
+			// check if the result is true 
+			for(z=0;z<labelSize;z++)
+			{
+				if(output[z].activation >= 0.5 && trainingDataLabels[i][z] == 0)
+				{
+					valid = 0;
+					break;
+				}
+			}
+			
+			if(x==0 || x== 9999)
+			{
+				if(valid == 1)
+					printf("\nTRUE");
+				else
+					printf("\nFALSE");
+		
+			}
 		}
 	}
 		
