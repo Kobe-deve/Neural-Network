@@ -48,6 +48,10 @@ int numNodesHidden;
 int ** trainingData; // specific array of training data
 int ** trainingDataLabels; // labels for training data 
 
+int ** testingData; // specific array for testing data 
+int ** testingDataLabels; // labels for testing data 
+int numInTestDataFile; // number of data sets in testing data file 
+
 int inputSize; // the size of one set of training data 
 int numInDataFile; // number of sets in training data file
 int labelSize; // the size of the labels 
@@ -73,8 +77,8 @@ void throwError(char * errorMessage)
 	exit(1);
 }
 
-// reads the input file 
-void readTestInputFiles(char * fileName)
+// reads the training data input file 
+void readTrainingInputFiles(char * fileName)
 {
 	FILE *readFile;
 	FILE *readOutputFile;
@@ -159,6 +163,88 @@ void readTestInputFiles(char * fileName)
 	fclose(readOutputFile);
 	free(fileReader);
 }
+
+// reads the testing data input file 
+void readTestInputFiles(char * fileName)
+{
+	FILE *readFile;
+	FILE *readOutputFile;
+	char * fileReader = malloc(128 * sizeof(char)); 
+	int i,j;
+
+	char inputFile[128] = "";
+	char outputFile[128] = "";
+	
+	// set up reading training data input file 
+	strcat(inputFile,fileName);
+	strcat(inputFile,"_input.txt");
+	
+	readFile = fopen(inputFile,"r");
+	
+	// set up reading training label output file 
+	strcat(outputFile,fileName);
+	strcat(outputFile,"_output.txt");
+	
+	readOutputFile = fopen(outputFile,"r");
+	
+	// start reading the files 
+	if(readFile == NULL || readOutputFile == NULL)
+		throwError("UNABLE TO OPEN FILES");
+	else
+	{
+		// get number of test data sets 
+		fscanf(readFile,"%s",fileReader);
+		numInTestDataFile = atoi(fileReader);
+		
+		// allocate training array
+		testingData = malloc(numInTestDataFile * sizeof(int **));
+		for(i=0;i<numInTestDataFile;i++)
+		{	
+			testingData[i] = malloc(inputSize * sizeof(int));
+			for(j=0;j<inputSize;j++)
+				testingData[i][j] = 0;
+		}	
+		
+		// read and obtain training data 
+		for(i=0;i<numInTestDataFile;i++)
+		{
+			// read specific set
+			for(j=0;j<inputSize;j++)
+			{
+				fscanf(readFile,"%s",fileReader);
+				testingData[i][j] = atoi(fileReader);
+			}
+		}
+		
+		// read testing label file
+
+		// allocate training array
+		testingDataLabels = malloc(numInTestDataFile * sizeof(int **));
+		for(i=0;i<numInTestDataFile;i++)
+		{	
+			testingDataLabels[i] = malloc(labelSize * sizeof(int));
+			for(j=0;j<labelSize;j++)
+				testingDataLabels[i][j] = 0;
+		}	
+		
+		// read and obtain training data 
+		for(i=0;i<numInTestDataFile;i++)
+		{
+			// read specific set
+			for(j=0;j<labelSize;j++)
+			{
+				fscanf(readOutputFile,"%s",fileReader);
+				testingDataLabels[i][j] = atoi(fileReader);
+			}
+		}
+	}
+	
+	// close files and free file reader used 
+	fclose(readFile);
+	fclose(readOutputFile);
+	free(fileReader);
+}
+
 
 // initialize a specific layer 
 void initializeLayer(int prevLayerSize, struct node * layer, int layerSize)
@@ -421,14 +507,14 @@ void backPropagation(int trainingSet)
 }
 
 // takes in an activation array of size (inputSize) and prints out node output
-void neuralNetwork(double * activationArray)
+void neuralNetwork(int * activationArray, int * expectedOutputArray)
 {
 	int i,j,z;
 	
 	// input training data into input nodes
 	for(j=0;j<inputSize;j++)
 	{
-		inputs[j].activation = activationArray[j];
+		inputs[j].activation = (double)activationArray[j];
 	}
 			
 	// go through hidden layers and activate nodes
@@ -443,12 +529,12 @@ void neuralNetwork(double * activationArray)
 		}
 	}
 		
-	printf("\nOUTPUT:");
+	printf("\nOUTPUT:	 EXPECTED:");
 	// activate output layer 
 	for(z=0;z<labelSize;z++)
 	{
 		activationFunction(hiddenLayer[numHidden-1], &output[z]);	
-		printf("%.2f ",output[z].activation);
+		printf("\n%.2f		 %d",output[z].activation,expectedOutputArray[z]);
 	}
 }
 
@@ -468,9 +554,9 @@ void main(int argc, char *argv[])
 	
 	// command line input 
 	if( argc == 2 ) 
-		readTestInputFiles(argv[1]);
+		readTrainingInputFiles(argv[1]);
 	else
-		readTestInputFiles("training_data/test_data");
+		readTrainingInputFiles("training_data/test_data");
 
 	// after reading file, set up the input and output layers of the network
 	inputs = malloc(inputSize * sizeof(struct node));
@@ -557,27 +643,23 @@ void main(int argc, char *argv[])
 			
 			cost += costFunction(i);
 		}
+		
+		//printNodes();
 		costProgression[x] = cost;
 	}
 	
 	// display cost progression difference
 	printf("\n\nCOST PROGRESSION (Last test run - First test) - %.10f",costProgression[numTestIterations-1]-costProgression[0]);
 	
-	
-	// currently the test input files are for the sine function so this will test it with one input 
-	double * activationArray = malloc(inputSize*sizeof(double));
-	activationArray[0] = 0;
-	activationArray[1] = 1;
-	activationArray[2] = 0;
-	activationArray[3] = 0;
-	activationArray[4] = 0;
-	activationArray[5] = 0;
-	activationArray[6] = 0;
-	activationArray[7] = 0;
-	activationArray[8] = 0;
-	activationArray[9] = 0;
-	neuralNetwork(activationArray);
-	
+	// get testing data from files
+	if( argc == 3 ) 
+		readTestInputFiles(argv[2]);
+	else
+		readTestInputFiles("testing_data/test_data");
+
+	// go through testing data and output the network's output vs the expected
+	for(i=0;i<numInTestDataFile;i++)
+		neuralNetwork(testingData[i],testingDataLabels[i]);
 	
 	//printWeightsAndBiases();
 	
