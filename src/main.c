@@ -185,13 +185,11 @@ double costFunction(int trainingDataSet)
 {
 	int i;
 	
-	double sum = 0;
+	double sum = 0.0;
 	
 	// go through outputs and subtract their activations with the expected label output 
 	for(i=0;i<labelSize;i++)
 	{
-		int active = 0;
-		
 		sum += pow(output[i].activation - trainingDataLabels[trainingDataSet][i],2);
 	}
 	
@@ -292,7 +290,7 @@ void backPropagation(int trainingSet)
 	}
 	
 	// hidden layers calculations
-	for(i=numHidden-1;i>=1;i--)
+	for(i=numHidden-1;i>=numHidden-2;i--)
 	{
 		double errorHidden = 0.0; // error in the current hidden layer
 		
@@ -308,7 +306,7 @@ void backPropagation(int trainingSet)
 			
 				deltaHidden[i][z] = errorHidden*derivativeSigmoid(hiddenLayer[i][z].activation);
 			}
-			else // if on the other hidden layers, get the previous layer 
+			else if(i >= 1) // if on the other hidden layers, get the previous layer 
 			{
 				for(j=0;j<numNodesHidden;j++)
 				{
@@ -389,7 +387,7 @@ void main(int argc, char *argv[])
 	output = malloc(labelSize * sizeof(struct node));
 	
 	// initialize hidden layer 
-	numHidden = 10;
+	numHidden = 1;
 	hiddenLayer = malloc(numHidden * sizeof(struct node *));
 	numNodesHidden = 3;
 	
@@ -446,7 +444,7 @@ void main(int argc, char *argv[])
 			}
 			
 			// display activation of all nodes and the cost 
-			printNodes();
+			//printNodes();
 			
 			// back propagation
 			backPropagation(i);
@@ -463,14 +461,15 @@ void main(int argc, char *argv[])
 				}
 			}
 			
-			if(valid == 1)
+			/*if(valid == 1)
 				printf("\nTRUE");
 			else
-				printf("\nFALSE");
+				printf("\nFALSE");*/
 			
 			cost += costFunction(i);
 		}
 		costProgression[x] = cost;
+		//printf("\n%.2f",cost);
 	}
 	
 	// display cost progression difference

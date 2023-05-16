@@ -11,8 +11,11 @@ Developed By Kobe Runnels
 # File input format:
 	Files
 		-(File Name)_input.txt
+			-First line: number of data sets in file 
+			-Second line: size of input (input layer nodes to set)
 			-Specifically labels which nodes to activate for input 
 		-(File Name)_output.txt
+			-First line: Size of output labels (output layer nodes to set)
 			-Specifically labels which nodes should be active on output 
 			-This is used for the cost function but in the future this will be replaced with regular
 			 labels with a given range of what outputs should be expected
