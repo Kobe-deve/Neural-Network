@@ -3,7 +3,7 @@
 Developed By Kobe Runnels
 
 # Running
-	main (txt file name/path from exe)
+	main (txt file name/path from exe for training data) (txt file name/path from exe for testing data)
 	
 # Compiling
 	gcc main.c -o main
@@ -28,8 +28,6 @@ Developed By Kobe Runnels
 		-testing_data/(File Name)_output.txt
 			-Specifically labels which nodes should be active on output 
 		
-			 
-			 
 # Process
 	-Take in training data (inputs/labels)
 	-Train on data and develop cost function
