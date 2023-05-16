@@ -292,7 +292,6 @@ void printWeightsAndBiases()
 	}
 }
 
-
 /*
    derivative of cost with respect to weight
    = activation of node in last layer * derivative sigmoid(z) * 2 * (activation - expected)
@@ -304,6 +303,7 @@ void printWeightsAndBiases()
    = (sum of nodes through layer) (weight * derivative sigmoid(z) * 2 * (activation - expected))
 */
 // takes in a specific training set to determine back propagation with updating weights
+// TODO decreasing biases/weights?
 void backPropagation(int trainingSet)
 {
 	// iteration loop variables 
@@ -328,29 +328,49 @@ void backPropagation(int trainingSet)
 	}
 	
 	// hidden layers calculations
-	for(i=numHidden-1;i>=numHidden-2;i--)
+	if(numHidden == 1)
 	{
-		double errorHidden = 0.0; // error in the current hidden layer
-		
 		for(z=0;z<numNodesHidden;z++)
 		{
-			// if this is the hidden layer before the output zone, get the output layer info 
-			if(i == numHidden-1)
-			{
-				for(j=0;j<labelSize;j++)
-				{
-					errorHidden += deltaOutput[j] * hiddenLayer[i][z].weights[j];
-				}
+			double errorHidden = 0.0; // error in the current hidden layer
 			
-				deltaHidden[i][z] = errorHidden*derivativeSigmoid(hiddenLayer[i][z].activation);
-			}
-			else if(i >= 1) // if on the other hidden layers, get the previous layer 
+			// get the output layer info 
+			for(j=0;j<labelSize;j++)
 			{
-				for(j=0;j<numNodesHidden;j++)
+				errorHidden += deltaOutput[j] * hiddenLayer[0][z].weights[j];
+			}
+			
+			deltaHidden[0][z] = errorHidden*derivativeSigmoid(hiddenLayer[0][z].activation);
+		}
+	}
+	else
+	{
+		for(i=numHidden-1;i>=1;i--)
+		{
+			double errorHidden = 0.0; // error in the current hidden layer
+			
+			for(z=0;z<numNodesHidden;z++)
+			{
+				// if this is the hidden layer before the output zone, get the output layer info 
+				if(i == numHidden-1)
 				{
-					errorHidden += deltaHidden[i-1][j] * hiddenLayer[i][z].weights[j];
+					for(j=0;j<labelSize;j++)
+					{
+						errorHidden += deltaOutput[j] * hiddenLayer[i][z].weights[j];
+					}
+				
+					deltaHidden[i][z] = errorHidden*derivativeSigmoid(hiddenLayer[i][z].activation);
+				
 				}
-				deltaHidden[i][z] = errorHidden*derivativeSigmoid(hiddenLayer[i][z].activation);
+				else if(i >= 1) // if on the other hidden layers, get the previous layer 
+				{
+					for(j=0;j<numNodesHidden;j++)
+					{
+						errorHidden += deltaHidden[i-1][j] * hiddenLayer[i][z].weights[j];
+					}
+					deltaHidden[i][z] = errorHidden*derivativeSigmoid(hiddenLayer[i][z].activation);
+				}
+				
 			}
 		}
 	}
@@ -366,14 +386,17 @@ void backPropagation(int trainingSet)
 	}
 	
 	// set hidden layer weights/biases
-	for(i=numHidden-1;i>=1;i--)
+	if(numHidden != 1)
 	{
-		for(j=0;j<numNodesHidden;j++)
+		for(i=numHidden-1;i>=1;i--)
 		{
-			hiddenLayer[i][j].bias += deltaHidden[i][j]*learningRate; // set the bias for the specific node 
-			for(z=0;z<numNodesHidden;z++) // set weights 
+			for(j=0;j<numNodesHidden;j++)
 			{
-				hiddenLayer[i][j].weights[z] += hiddenLayer[i-1][z].activation*deltaHidden[i-1][j]*learningRate;
+				hiddenLayer[i][j].bias += deltaHidden[i][j]*learningRate; // set the bias for the specific node 
+				for(z=0;z<numNodesHidden;z++) // set weights 
+				{
+					hiddenLayer[i][j].weights[z] += hiddenLayer[i-1][z].activation*deltaHidden[i-1][j]*learningRate;
+				}
 			}
 		}
 	}
@@ -437,7 +460,7 @@ void main(int argc, char *argv[])
 	srand((unsigned)time(NULL));
 	
 	// set learning rate and number of iterations through training data 
-	numTestIterations = 70;
+	numTestIterations = 1000;
 	learningRate = 0.00000001;
 	
 	// initialize cost progression array 
@@ -463,7 +486,7 @@ void main(int argc, char *argv[])
 	// initialize hidden layer array
 	numHidden = 1;
 	hiddenLayer = malloc(numHidden * sizeof(struct node *));
-	numNodesHidden = 2;
+	numNodesHidden = 6;
 	
 	// initialize hidden layer before input 
 	hiddenLayer[0] = malloc(numNodesHidden * sizeof(struct node));
@@ -538,7 +561,7 @@ void main(int argc, char *argv[])
 	}
 	
 	// display cost progression difference
-	printf("\n\nCOST PROGRESSION (Last test run - First test) - %.3f",costProgression[numTestIterations-1]-costProgression[0]);
+	printf("\n\nCOST PROGRESSION (Last test run - First test) - %.10f",costProgression[numTestIterations-1]-costProgression[0]);
 	
 	
 	// currently the test input files are for the sine function so this will test it with one input 
@@ -556,7 +579,7 @@ void main(int argc, char *argv[])
 	neuralNetwork(activationArray);
 	
 	
-	printWeightsAndBiases();
+	//printWeightsAndBiases();
 	
 	// free data used at the end 
 	free(inputs);
