@@ -1,5 +1,9 @@
 #include <math.h>
 
+/*
+	Houses specific math functions used for the neural network 
+*/
+
 #ifndef NEURAL_NET_FUNCTIONS
 #define NEURAL_NET_FUNCTIONS
 

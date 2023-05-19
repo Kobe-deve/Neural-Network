@@ -1,5 +1,9 @@
 #include "neural_net.h"
 
+/*
+	Houses functions used in the program for reading input files for data used for the network 
+*/
+
 #ifndef NEURAL_NET_FILE_READING
 #define NEURAL_NET_FILE_READING
 

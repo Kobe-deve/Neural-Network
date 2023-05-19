@@ -95,7 +95,7 @@ void main(int argc, char *argv[])
 	// initialize cost progression array 
 	costProgression = malloc(numTestIterations * sizeof(double));
 	
-	// command line input 
+	// command line input for training data 
 	if( argc == 2 ) 
 		readTrainingInputFiles(argv[1]);
 	else

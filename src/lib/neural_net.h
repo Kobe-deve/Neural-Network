@@ -5,6 +5,18 @@
 
 #include "neural_net_functions.h"
 
+/*
+	Houses the specific global variables, structures, and functions
+	used for basic functions in the neural network such as 
+	
+	initialization
+	activation function for nodes
+	cost function calculation
+	back propagation
+	running of the neural network for test data given an input and label 
+
+*/
+
 #ifndef NEURAL_NET
 #define NEURAL_NET
 
