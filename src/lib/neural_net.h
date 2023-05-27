@@ -137,122 +137,98 @@ void activationFunction(struct node * previousLayer, struct node * inputNode)
    derivative of cost with respect to activation of last node
    = (sum of nodes through layer) (weight * derivative sigmoid(z) * 2 * (activation - expected))
 */
+/*
+	PROCESS/MATH:
+	
+	changing weights/biases:
+	
+		
+	
+		for layer from(output to layer after input):
+			
+*/
 // takes in a specific training set to determine back propagation with updating weights
-// TODO decreasing biases/weights?
 void backPropagation(int trainingSet)
 {
 	// iteration loop variables 
 	int i,j,z;
 	
-	// arrays used for setting up the weights with error calculation 
-	double * deltaOutput = malloc(labelSize * sizeof(double));
-	double ** deltaHidden = malloc(numHidden * sizeof(double *));
-	
-	// allocate delta hidden 
-	for(i=0;i<numHidden;i++)
-		deltaHidden[i] = malloc(numNodesHidden * sizeof(double));
-	
-	// output layer calculations
+	// array of the values of the derivative of the cost function aka derivative of (what was produced - what we want)^2
+	double * derivativeofcostFunction = malloc(labelSize * sizeof(double));
+
+	// get the cost error for each output activation node 
 	for(i=0;i<labelSize;i++)
 	{
 		// calculate the error of the activation of the output - the expected activation 
-		double error = output[i].activation - trainingDataLabels[trainingSet][i];
-		
-		// set up delta output calculation for setting weights
-		deltaOutput[i] = error*derivativeSigmoid(output[i].activation);
+		double error = fmax(0,output[i].activation) - trainingDataLabels[trainingSet][i];
+			
+		derivativeofcostFunction[i] = 2*error;
 	}
 	
-	// hidden layers calculations
-	if(numHidden == 1)
-	{
-		for(z=0;z<numNodesHidden;z++)
-		{
-			double errorHidden = 0.0; // error in the current hidden layer
-			
-			// get the output layer info 
-			for(j=0;j<labelSize;j++)
-			{
-				errorHidden += deltaOutput[j] * hiddenLayer[0][z].weights[j];
-			}
-			
-			deltaHidden[0][z] = errorHidden*derivativeSigmoid(hiddenLayer[0][z].activation);
-		}
-	}
-	else
-	{
-		for(i=numHidden-1;i>=1;i--)
-		{
-			double errorHidden = 0.0; // error in the current hidden layer
-			
-			for(z=0;z<numNodesHidden;z++)
-			{
-				// if this is the hidden layer before the output zone, get the output layer info 
-				if(i == numHidden-1)
-				{
-					for(j=0;j<labelSize;j++)
-					{
-						errorHidden += deltaOutput[j] * hiddenLayer[i][z].weights[j];
-					}
-				
-					deltaHidden[i][z] = errorHidden*derivativeSigmoid(hiddenLayer[i][z].activation);
-				
-				}
-				else if(i >= 1) // if on the other hidden layers, get the previous layer 
-				{
-					for(j=0;j<numNodesHidden;j++)
-					{
-						errorHidden += deltaHidden[i-1][j] * hiddenLayer[i][z].weights[j];
-					}
-					deltaHidden[i][z] = errorHidden*derivativeSigmoid(hiddenLayer[i][z].activation);
-				}
-				
-			}
-		}
-	}
+	// allocate deltas for output/hidden layer changes 
+	double ** deltaHiddenBias = malloc(numHidden * sizeof(double));
+	double *** deltaHiddenWeight = malloc(numHidden * sizeof(double ** ));
 	
-	// set output layer weights/biases
+	double * deltaOutputBias = malloc(labelSize * sizeof(double));
+	double ** deltaOutputWeight = malloc(labelSize * sizeof(double * ));
+	
 	for(i=0;i<labelSize;i++)
-	{
-		output[i].bias += deltaOutput[i]*learningRate; // set the bias for the specific node 
-		for(j=0;j<numNodesHidden;j++)
-		{
-			output[i].weights[j] += hiddenLayer[numHidden-1][z].activation*deltaHidden[numHidden-1][j]*learningRate;
-		}
-	}
-	
-	// set hidden layer weights/biases
-	if(numHidden != 1)
-	{
-		for(i=numHidden-1;i>=1;i--)
-		{
-			for(j=0;j<numNodesHidden;j++)
-			{
-				hiddenLayer[i][j].bias += deltaHidden[i][j]*learningRate; // set the bias for the specific node 
-				for(z=0;z<numNodesHidden;z++) // set weights 
-				{
-					hiddenLayer[i][j].weights[z] += hiddenLayer[i-1][z].activation*deltaHidden[i-1][j]*learningRate;
-				}
-			}
-		}
-	}
-	
-	// set hidden layer (before input layer) weights/biases
-	for(j=0;j<numNodesHidden;j++)
-	{
-		hiddenLayer[0][j].bias += deltaHidden[0][j]*learningRate; // set the bias for the specific node	
-		for(i=0;i<inputSize;i++) // set weights based on input data 
-		{
-			hiddenLayer[0][j].weights[i] += deltaHidden[0][j]*trainingData[trainingSet][i]*learningRate;
-		}
-	}
-	
-	
-	// free the data used 
-	free(deltaOutput);
+		deltaOutputWeight[i] = malloc(numNodesHidden * sizeof(double));
 	
 	for(i=0;i<numHidden;i++)
-		free(deltaHidden[i]);
-	free(deltaHidden);
+	{
+		if(i==0) // for hidden layer after input layer 
+		{
+			deltaHiddenBias[i] = malloc(inputSize * sizeof(double));
+			deltaHiddenWeight[i] = malloc(inputSize * sizeof(double *));
+		}
+		else
+		{
+			deltaHiddenBias[i] = malloc(numNodesHidden * sizeof(double));
+			deltaHiddenWeight[i] = malloc(numNodesHidden * sizeof(double *));
+		}
+	}
+	
+	// calculate the delta (change needed) for the weights and biases in the output layer 
+	// this is done through getting the derivative of the weights/bias/activation from the cost function and going backwards
+	for(i=0;i<labelSize;i++)
+	{
+	
+	}
+	
+	// calculate the delta (change needed) for the weights and biases in the hidden layer 
+	// this is done through getting the derivative of the weights/bias/activation from the cost function and going backwards 
+	for(z=0;z<numHidden;z++)
+	{
+		for(j=0;j<numNodesHidden;j++)
+		{
+			
+		}
+	}
+	
+	// change weights and biases in hidden layer 
+	for(z=0;z<numHidden;z++)
+	{
+		for(j=0;j<numNodesHidden;j++)
+		{
+			
+		}
+	}
+	
+	// change weights and biases in output layer 
+	for(i=0;i<labelSize;i++)
+	{
+	
+	}
+	
+	// free used arrays 
+	free(derivativeofcostFunction);
+	
+	free(deltaHiddenWeight);
+	free(deltaHiddenBias);
+	
+	free(deltaOutputBias);
+	free(deltaOutputWeight);
 }
 
 // takes in an activation array of size (inputSize) and prints out node output

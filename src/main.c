@@ -3,6 +3,8 @@
 	Created by Kobe Runnels
 	5/8/2023 - 
 */
+
+
 #include "lib/neural_net.h"
 #include "lib/neural_net_functions.h"
 #include "lib/neural_net_file_reading.h"
@@ -85,11 +87,13 @@ void main(int argc, char *argv[])
 {	
 	int i,j,z,x;
 	
+	/* initialization of the program/network */
+	
 	// set the seed for randomization (when initializing)
 	srand((unsigned)time(NULL));
 	
 	// set learning rate and number of iterations through training data 
-	numTestIterations = 100;
+	numTestIterations = 10000;
 	learningRate = 0.001;
 	
 	// initialize cost progression array 
@@ -137,6 +141,8 @@ void main(int argc, char *argv[])
 	initializeLayer(numNodesHidden,output,labelSize);
 	printf("OUTPUT INITIALIZED");
 
+	/* Training the network - iterating through the test data and using backprop to learn */
+
 	// loop through training data (numTestIterations) number of times
 	for(x=0;x<numTestIterations;x++)
 	{
@@ -169,7 +175,7 @@ void main(int argc, char *argv[])
 				activationFunction(hiddenLayer[numHidden-1], &output[z]);	
 			}
 			
-			// back propagation
+			// back propagate/learn after going through the training data set 
 			backPropagation(i);
 			
 			int valid = 1;
@@ -191,6 +197,8 @@ void main(int argc, char *argv[])
 		costProgression[x] = cost;
 	}
 	
+	/* Testing network - giving it test data and viewing results */
+	
 	// display cost progression difference
 	printf("\n\nCOST PROGRESSION (Last test run - First test) - %.10f",costProgression[numTestIterations-1]-costProgression[0]);
 	
@@ -206,6 +214,8 @@ void main(int argc, char *argv[])
 	
 	//printWeightsAndBiases();
 	
+	/* End of program - Freeing up memory */
+	
 	// free data used at the end 
 	free(inputs);
 	free(output);
@@ -218,4 +228,28 @@ void main(int argc, char *argv[])
 		free(hiddenLayer[i]);
 	
 	free(hiddenLayer);
+	
+	/*
+	Example code from https://github.com/takafumihoriuchi/MNIST_for_C for reading MNIST in C, will be used for testing 
+	
+	// call to store mnist in array
+    load_mnist();
+
+    // print pixels of first data in test dataset
+    int i;
+    for (i=0; i<784; i++) {
+        printf("%1.1f ", test_image[0][i]);
+        if ((i+1) % 28 == 0) putchar('\n');
+    }
+
+    // print first label in test dataset
+    printf("label: %d\n", test_label[0]);
+
+    // save image of first data in test dataset as .pgm file
+    save_mnist_pgm(test_image, 0);
+
+    // show all pixels and labels in test dataset
+    print_mnist_pixel(test_image, NUM_TEST);
+    print_mnist_label(test_label, NUM_TEST);
+	*/
 }

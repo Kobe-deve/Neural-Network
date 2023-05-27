@@ -1,2 +1,7 @@
 
 *.exe
+*.gz
+*.idx3-ubyte
+*.idx1-ubyte
+src/d
+src/10

@@ -1,0 +1,63 @@
+
+z = weight*n(i-1).activations + bias 
+activations = sigmoid(z)
+
+Output cost
+Cost = (activations - needed)^2
+Cost = (sigmoid(z) - needed)^2
+Cost = (sigmoid(weight*n(current layer-1).activations + bias) - needed)^2
+
+Changing weights
+
+dCost/d(weight) = 1/(num training examples)(sum of training examples (d(z)/d(weight) * d(activations)/d(z) * d(Cost)/d(activations)))
+
+d(Cost)/d(activations) = 2(activations - needed)
+d(activations)/d(z) = d(sigmoid(z))
+d(z)/d(weight) = n(current layer-1).activations
+
+Changing biases
+
+dCost/d(bias) = 1/(num training examples)(sum of training examples (d(z)/d(bias) * d(activations)/d(z) * d(Cost)/d(activations)))
+d(z)/d(bias) = 1
+
+
+I 	 	H1			H2			O		Expected 
+
+1		1			1			1		0
+2		2			2			2		1
+		3			3			3		0
+		4			4
+		
+
+
+Gradient of Cost = [dCost/dweights[1...i], dCost/dBias[1...i] ]
+
+What we need: 
+-1 * Gradient of Cost = -1 * [dCost/dweights[1...i], dCost/dBias[1...i], .... ]
+
+Cost = Sum (for every output node)((O[i]-Expected)^2)
+
+Cost = (O[1]-Expected[1])^2+(O[2]-Expected[2])^2+(O[3]-Expected[3])^2
+
+O[1] = sigmoid(O1.weights[1]*H2.activations[1] + O1.weights[2]*H2.activations[2] + O1.weights[3]*H2.activations[3] + O1.weights[4]*H2.activations[4] + O[1].bias)
+O[2] = sigmoid(O2.weights[1]*H2.activations[1] + O2.weights[2]*H2.activations[2] + O2.weights[3]*H2.activations[3] + O2.weights[4]*H2.activations[4] + O[2].bias)
+O[3] = sigmoid(O3.weights[1]*H2.activations[1] + O3.weights[2]*H2.activations[2] + O3.weights[3]*H2.activations[3] + O3.weights[4]*H2.activations[4] + O[3].bias)
+
+H2[1] = sigmoid(H2[1].weights[1]*H1.activations[1] + H2[1].weights[2]*H1.activations[2] + H2[1].weights[3]*H1.activations[3] + H2[1].weights[4]*H1.activations[4] + H2[1].bias)
+H2[2] = sigmoid(H2[2].weights[1]*H1.activations[1] + H2[2].weights[2]*H1.activations[2] + H2[2].weights[3]*H1.activations[3] + H2[2].weights[4]*H1.activations[4] + H2[2].bias)
+H2[3] = sigmoid(H2[3].weights[1]*H1.activations[1] + H2[3].weights[2]*H1.activations[2] + H2[3].weights[3]*H1.activations[3] + H2[3].weights[4]*H1.activations[4] + H2[3].bias)
+H2[4] = sigmoid(H2[4].weights[1]*H1.activations[1] + H2[4].weights[2]*H1.activations[2] + H2[4].weights[3]*H1.activations[3] + H2[4].weights[4]*H1.activations[4] + H2[4].bias)
+
+H1[1] = sigmoid(H1[1].weights[1]*I.activations[1] + H1[1].weights[2]*I.activations[2] + H1[1].weights[3]*I.activations[3] + H1[1].weights[1]*I.activations[4] + H1[1].bias)
+H1[2] = sigmoid(H1[2].weights[1]*I.activations[1] + H1[2].weights[2]*I.activations[2] + H1[2].weights[3]*I.activations[3] + H1[2].weights[2]*I.activations[4] + H1[2].bias)
+H1[3] = sigmoid(H1[3].weights[1]*I.activations[1] + H1[3].weights[2]*I.activations[2] + H1[3].weights[3]*I.activations[3] + H1[3].weights[3]*I.activations[4] + H1[3].bias)
+H1[4] = sigmoid(H1[4].weights[1]*I.activations[1] + H1[4].weights[2]*I.activations[2] + H1[4].weights[3]*I.activations[3] + H1[4].weights[4]*I.activations[4] + H1[4].bias)
+
+
+
+For i in range(Output, Input+1):
+	
+		
+	
+	
+	

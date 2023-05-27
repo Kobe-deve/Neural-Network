@@ -6,8 +6,9 @@ Developed By Kobe Runnels
 	main (txt file name/path from exe for training data) (txt file name/path from exe for testing data)
 	
 # Compiling
-	gcc main.c -o main
-
+	Windows: gcc main.c -o main
+	Linux/Mac(?): gcc main.c -o main -lm
+	
 # File input format:
 	Files
 		(Training data)
@@ -37,6 +38,8 @@ Developed By Kobe Runnels
 		-Change weights/biases 
 				
 # Resources/Inspiration
-- http://neuralnetworksanddeeplearning.com/
 - https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi
+	- I seriously recommend the 3Blue1Brown videos as he breaks down the process for newcomers really well
+- http://neuralnetworksanddeeplearning.com/
 - https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547
+- https://github.com/takafumihoriuchi/MNIST_for_C
